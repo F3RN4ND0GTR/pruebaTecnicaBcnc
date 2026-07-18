@@ -1,0 +1,23 @@
+spring:
+  application:
+    name: pruebatecnica
+
+  datasource:
+    url: jdbc:h2:mem:pricesdb;DB_CLOSE_DELAY=-1
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: none # Dejamos que schema.sql maneje la estructura de la base de datos
+
+  sql:
+    init:
+      mode: always # Fuerza la ejecución de schema.sql y data.sql al arrancar
+
+  h2:
+    console:
+      enabled: true
+      path: /h2-console # Permite acceder a la consola en http://localhost:8080/h2-console
