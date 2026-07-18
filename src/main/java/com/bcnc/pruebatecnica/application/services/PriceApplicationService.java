@@ -4,6 +4,7 @@ import com.bcnc.pruebatecnica.application.dto.PriceResponse;
 import com.bcnc.pruebatecnica.application.port.in.GetApplicablePriceUseCase;
 import com.bcnc.pruebatecnica.domain.model.Price;
 import com.bcnc.pruebatecnica.domain.repository.PriceRepositoryPort;
+import com.bcnc.pruebatecnica.infrastructure.adapters.in.web.exception.PriceNotFoundException;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -18,7 +19,8 @@ public class PriceApplicationService implements GetApplicablePriceUseCase {
   public PriceResponse execute(LocalDateTime applicationDate, Integer productId, Integer brandId) {
     return priceRepositoryPort.findApplicablePrice(applicationDate, productId, brandId)
         .map(this::mapToResponse)
-        .orElseThrow(() -> new RuntimeException("Price not found for the given criteria"));
+        .orElseThrow(() -> new PriceNotFoundException("No se encontró una tarifa aplicable "
+            + "para el producto e identificadores indicados"));
   }
 
   private PriceResponse mapToResponse(Price price) {
