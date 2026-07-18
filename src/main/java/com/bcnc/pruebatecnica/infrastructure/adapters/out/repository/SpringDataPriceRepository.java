@@ -23,7 +23,7 @@ public interface SpringDataPriceRepository extends JpaRepository<PriceEntity, Lo
       + "FROM PriceEntity p "
       + "WHERE p.productId = :productId AND p.brandId = :brandId "
       + "AND :applicationDate BETWEEN p.startDate AND p.endDate "
-      + "ORDER BY p.priority DESC")
+      + "ORDER BY p.priority DESC, p.startDate DESC") // <-- Añadido , p.startDate DESC
   List<PriceEntity> findApplicablePrices(
       @Param("applicationDate") LocalDateTime applicationDate,
       @Param("productId") Integer productId,
