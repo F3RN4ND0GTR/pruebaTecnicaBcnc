@@ -3,7 +3,7 @@ spring:
     name: pruebatecnica
 
   datasource:
-    url: jdbc:h2:mem:pricesdb;DB_CLOSE_DELAY=-1
+    url: jdbc:h2:mem:pricesdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
     driver-class-name: org.h2.Driver
     username: sa
     password:
@@ -11,13 +11,26 @@ spring:
   jpa:
     database-platform: org.hibernate.dialect.H2Dialect
     hibernate:
-      ddl-auto: none # Dejamos que schema.sql maneje la estructura de la base de datos
+      ddl-auto: none # Manejado por schema.sql
+    defer-datasource-initialization: true # 💡 OBLIGATORIO: Fuerza a Hibernate a esperar a que schema.sql cree las tablas
+    show-sql: true # 💡 Muestra las SQLs en consola para demostrar la eficiencia del LIMIT 1
+    properties:
+      hibernate:
+        format_sql: true # Formatea las SQLs para mayor legibilidad en logs
 
   sql:
     init:
-      mode: always # Fuerza la ejecución de schema.sql y data.sql al arrancar
+      mode: always # Ejecuta schema.sql y data.sql al arrancar
 
   h2:
     console:
       enabled: true
-      path: /h2-console # Permite acceder a la consola en http://localhost:8080/h2-console
+      path: /h2-console
+      settings:
+        web-allow-others: false # Buena práctica de seguridad
+
+logging:
+  level:
+    root: INFO
+    com.bcnc.pruebatecnica: DEBUG
+    org.hibernate.SQL: DEBUG # Muestra las peticiones exactas a la BD durante la ejecución de los tests

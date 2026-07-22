@@ -1,4 +1,4 @@
-package com.bcnc.pruebatecnica.infrastructure.adapters.in.web.exception;
+package com.bcnc.pruebatecnica.domain.exception;
 
 /**
  * Excepción lanzada cuando no se encuentra ninguna tarifa de precios aplicable
