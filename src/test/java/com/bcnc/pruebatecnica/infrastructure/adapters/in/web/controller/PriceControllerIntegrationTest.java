@@ -1,5 +1,9 @@
 package com.bcnc.pruebatecnica.infrastructure.adapters.in.web.controller;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,9 +11,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -49,7 +50,7 @@ class PriceControllerIntegrationTest {
         .andExpect(jsonPath("$.productId").value(35455))
         .andExpect(jsonPath("$.brandId").value(1))
         .andExpect(jsonPath("$.priceList").value(2))
-        .andExpect(jsonPath("$.price").value(25.45)); // <-- Cambiado de 25.44 a 25.45
+        .andExpect(jsonPath("$.price").value(25.45));
   }
 
   @Test
@@ -63,8 +64,8 @@ class PriceControllerIntegrationTest {
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.productId").value(35455))
         .andExpect(jsonPath("$.brandId").value(1))
-        .andExpect(jsonPath("$.priceList").value(2)) // <-- Cambiado de 1 a 2
-        .andExpect(jsonPath("$.price").value(25.45)); // <-- Cambiado de 35.50 a 25.45
+        .andExpect(jsonPath("$.priceList").value(1))
+        .andExpect(jsonPath("$.price").value(35.50));
   }
 
   @Test
@@ -83,10 +84,10 @@ class PriceControllerIntegrationTest {
   }
 
   @Test
-  @DisplayName("Test 5: Petición a las 19:00 del día 15 del producto 35455 para la brand 1 (ZARA)")
-  void test5_RequestAt1900Day15() throws Exception {
+  @DisplayName("Test 5: Petición a las 21:00 del día 16 del producto 35455 para la brand 1 (ZARA)")
+  void test5_RequestAt2100Day16() throws Exception {
     mockMvc.perform(get(API_URL)
-            .param("applicationDate", "2020-06-15T19:00:00")
+            .param("applicationDate", "2020-06-16T21:00:00") // <-- Fecha exacta del enunciado (día 16)
             .param("productId", PRODUCT_ID)
             .param("brandId", BRAND_ID)
             .contentType(MediaType.APPLICATION_JSON))
@@ -95,5 +96,27 @@ class PriceControllerIntegrationTest {
         .andExpect(jsonPath("$.brandId").value(1))
         .andExpect(jsonPath("$.priceList").value(4))
         .andExpect(jsonPath("$.price").value(38.95));
+  }
+
+  @Test
+  @DisplayName("Test 6: Debe devolver 404 NOT FOUND cuando el producto no existe")
+  void test6_RequestNotFound() throws Exception {
+    mockMvc.perform(get(API_URL)
+            .param("applicationDate", "2020-06-14T10:00:00")
+            .param("productId", "99999")
+            .param("brandId", BRAND_ID)
+            .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isNotFound());
+  }
+
+  @Test
+  @DisplayName("Test 6: Debe devolver 404 Not Found cuando el producto no existe en BD")
+  void shouldReturn404WhenPriceNotFound() throws Exception {
+    mockMvc.perform(get(API_URL)
+            .param("applicationDate", "2020-06-14T10:00:00")
+            .param("productId", "99999") // Producto inexistente
+            .param("brandId", "1")
+            .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isNotFound());
   }
 }

@@ -1,4 +1,4 @@
-package com.bcnc.pruebatecnica.infrastructure.adapters.in.web.exception;
+package com.bcnc.pruebatecnica.domain.exception;
 
 import java.time.LocalDateTime;
 import lombok.Builder;

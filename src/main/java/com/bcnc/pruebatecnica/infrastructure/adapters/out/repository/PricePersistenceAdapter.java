@@ -19,11 +19,10 @@ public class PricePersistenceAdapter implements PriceRepositoryPort {
   private final SpringDataPriceRepository springDataPriceRepository;
 
   @Override
-  public Optional<Price> findApplicablePrice(LocalDateTime applicationDate,
-                                             Integer productId, Integer brandId) {
-    return springDataPriceRepository.findApplicablePrices(applicationDate, productId, brandId)
-        .stream()
-        .findFirst()
+  public Optional<Price> findApplicablePrice(LocalDateTime applicationDate, Integer productId, Integer brandId) {
+    return springDataPriceRepository
+        .findFirstByBrandIdAndProductIdAndStartDateLessThanEqualAndEndDateGreaterThanEqualOrderByPriorityDesc(
+            brandId, productId, applicationDate, applicationDate)
         .map(this::mapToDomain);
   }
 
