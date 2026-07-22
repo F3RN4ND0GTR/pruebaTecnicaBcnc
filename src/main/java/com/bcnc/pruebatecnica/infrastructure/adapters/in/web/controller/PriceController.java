@@ -2,17 +2,22 @@ package com.bcnc.pruebatecnica.infrastructure.adapters.in.web.controller;
 
 import com.bcnc.pruebatecnica.application.dto.PriceResponse;
 import com.bcnc.pruebatecnica.application.port.in.GetApplicablePriceUseCase;
-import com.bcnc.pruebatecnica.infrastructure.adapters.in.web.exception.ErrorResponse;
+import com.bcnc.pruebatecnica.domain.exception.ErrorResponse;
+import com.bcnc.pruebatecnica.domain.model.Price;
+import com.bcnc.pruebatecnica.infrastructure.adapters.in.web.mapper.PriceWebMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -24,10 +29,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/v1/prices")
 @RequiredArgsConstructor
+@Validated
 @Tag(name = "Precios", description = "Endpoints para la gestión y consulta de tarifas de precios")
 public class PriceController {
 
   private final GetApplicablePriceUseCase getApplicablePriceUseCase;
+  private final PriceWebMapper priceWebMapper;
 
   @GetMapping("/applicable")
   @Operation(
@@ -45,16 +52,24 @@ public class PriceController {
   public ResponseEntity<PriceResponse> getApplicablePrice(
       @Parameter(description = "Fecha de aplicación (Formato: yyyy-MM-dd'T'HH:mm:ss)",
           example = "2020-06-14T16:00:00")
-      @RequestParam("applicationDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+      @RequestParam("applicationDate")
+      @NotNull(message = "La fecha de aplicación es obligatoria")
+      @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
       LocalDateTime applicationDate,
 
       @Parameter(description = "Identificador único del producto", example = "35455")
-      @RequestParam("productId") Integer productId,
+      @RequestParam("productId")
+      @NotNull(message = "El id de producto es obligatorio")
+      @Positive(message = "El id de producto debe ser positivo")
+      Integer productId,
 
       @Parameter(description = "Identificador único de la marca / cadena", example = "1")
-      @RequestParam("brandId") Integer brandId) {
+      @RequestParam("brandId")
+      @NotNull(message = "El id de cadena es obligatorio")
+      @Positive(message = "El id de cadena debe ser positivo") Integer brandId) {
 
-    PriceResponse response = getApplicablePriceUseCase.execute(applicationDate, productId, brandId);
-    return ResponseEntity.ok(response);
+    Price price = getApplicablePriceUseCase.execute(applicationDate, productId, brandId);
+
+    return ResponseEntity.ok(priceWebMapper.toResponse(price));
   }
 }
